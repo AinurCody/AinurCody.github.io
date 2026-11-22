@@ -13,7 +13,6 @@ const latest = posts.slice(0, 6);
   <div class="home">
     <div class="intro">
       <h1>{SITE.title}</h1>
-      <p class="lede">{SITE.description}</p>
     </div>
     <div class="sky">
       <StarChart posts={posts} />
@@ -35,7 +34,7 @@ const latest = posts.slice(0, 6);
   .home {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(15rem, 21rem);
-    /* 第一行只占标题和简介的高度，文章列表紧跟在后面；星图比左栏高时，多出来的空在列表下方。 */
+    /* 第一行只占标题的高度，文章列表紧跟在后面；星图比左栏高时，多出来的空在列表下方。 */
     grid-template-rows: auto 1fr;
     grid-template-areas:
       'intro sky'
@@ -58,13 +57,8 @@ const latest = posts.slice(0, 6);
   }
 
   h1 {
-    margin: 0;
+    margin: 0 0 1.5rem;
     font-size: clamp(1.8rem, 4.5vw, 2.2rem);
-  }
-
-  .lede {
-    margin: 0.5rem 0 1.5rem;
-    color: var(--mut);
   }
 
   .more {

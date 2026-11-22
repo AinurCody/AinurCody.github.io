@@ -1,7 +1,8 @@
-// 站点信息集中放在这里。标题和简介目前是占位，随时可以改。
+// 站点信息集中放在这里。
 export const SITE = {
-  title: 'Cody 的手记',
-  description: '写机器学习、Agent 和折腾服务器的过程。',
+  title: "Cody's Notes",
+  // 首页不显示简介。这一句只用在搜索结果摘要、RSS 和友链页的「本站信息」里。
+  description: 'Cody 的技术博客。',
   author: 'Cody',
   domain: 'amcody.dev',
   url: 'https://amcody.dev',
