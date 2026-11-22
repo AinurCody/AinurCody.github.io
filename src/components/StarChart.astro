@@ -1,0 +1,161 @@
+---
+// 首页的星图，构建时由文章数据画成一张静态 SVG，不需要脚本。
+// 一圈是一年，最新的一年在最外圈；一年里的日期决定角度，1 月 1 日在正上方，顺时针走。
+// 同一个系列（frontmatter 里的 series）的文章用线连起来，最新的一篇外面多一个圈。
+import { SITE } from '../consts';
+import { postUrl, type Post } from '../lib/posts';
+import { hash32, mulberry32 } from '../lib/seed';
+
+interface Props {
+  posts: Post[];
+}
+
+const { posts } = Astro.props;
+
+const CENTER = 200;
+const R_RIM = 188; // 外圈
+const R_TICK = 180; // 月份刻度
+const R_INNER = 50; // 文章能到的最里面
+const R_OUTER = 168; // 文章能到的最外面
+const MIN_BANDS = 3; // 文章不满三年时也画三圈，新的一年总在最外圈
+
+const byDate = [...posts].sort((a, b) => a.data.date.valueOf() - b.data.date.valueOf());
+const thisYear = new Date().getUTCFullYear();
+const firstYear = byDate.length ? byDate[0].data.date.getUTCFullYear() : thisYear;
+const lastYear = byDate.length ? byDate[byDate.length - 1].data.date.getUTCFullYear() : thisYear;
+const bands = Math.max(MIN_BANDS, lastYear - firstYear + 1);
+const bandWidth = (R_OUTER - R_INNER) / bands;
+const rings = Array.from({ length: bands - 1 }, (_, i) => R_INNER + (i + 1) * bandWidth);
+
+function place(date: Date, id: string) {
+  const year = date.getUTCFullYear();
+  const start = Date.UTC(year, 0, 1);
+  const end = Date.UTC(year + 1, 0, 1);
+  const angle = -Math.PI / 2 + ((date.valueOf() - start) / (end - start)) * Math.PI * 2;
+  const band = bands - 1 - (lastYear - year);
+  // 同一圈里稍微错开一点，日期接近的文章不至于叠在一起。
+  const offset = (mulberry32(hash32(id))() - 0.5) * bandWidth * 0.5;
+  const r = R_INNER + (band + 0.5) * bandWidth + offset;
+  return { x: CENTER + r * Math.cos(angle), y: CENTER + r * Math.sin(angle) };
+}
+
+const stars = byDate.map((post) => ({
+  ...place(post.data.date, post.id),
+  title: post.data.title,
+  series: post.data.series,
+  href: postUrl(post),
+}));
+const newest = stars.at(-1);
+
+const bySeries = new Map<string, typeof stars>();
+for (const star of stars) {
+  if (!star.series) continue;
+  bySeries.set(star.series, [...(bySeries.get(star.series) ?? []), star]);
+}
+const lines = [...bySeries.values()]
+  .filter((group) => group.length > 1)
+  .map((group) => group.map((s, i) => `${i ? 'L' : 'M'}${s.x.toFixed(1)} ${s.y.toFixed(1)}`).join(''));
+
+// 背景里的小星只是装饰，位置由站名决定，每次构建都一样。
+const random = mulberry32(hash32(SITE.wordmark));
+const backdrop = Array.from({ length: 26 }, () => {
+  const r = Math.sqrt(random()) * (R_RIM - 16);
+  const angle = random() * Math.PI * 2;
+  return { x: CENTER + r * Math.cos(angle), y: CENTER + r * Math.sin(angle), r: 0.7 + random() * 1.2 };
+});
+
+const n = (value: number) => value.toFixed(1);
+const monthArc = (2 * Math.PI * R_TICK) / 12;
+const label = stars.length
+  ? `星图：${stars.length} 篇文章，一圈是一年，转一周是十二个月`
+  : '星图：还没有文章';
+---
+
+<figure class="chart">
+  <svg viewBox="0 0 400 400" role="group" aria-label={label}>
+    <circle class="rule" cx={CENTER} cy={CENTER} r={R_RIM}></circle>
+    <circle class="tick" cx={CENTER} cy={CENTER} r={R_TICK} stroke-dasharray={`1.6 ${(monthArc - 1.6).toFixed(3)}`}></circle>
+    {rings.map((r) => <circle class="rule" cx={CENTER} cy={CENTER} r={n(r)} />)}
+    <circle class="rule dashed" cx={CENTER} cy={CENTER + 28} r="132"></circle>
+    <path class="rule" d={`M${CENTER} ${CENTER - R_RIM}V${CENTER + R_RIM}M${CENTER - R_RIM} ${CENTER}H${CENTER + R_RIM}`}></path>
+    <g class="backdrop">
+      {backdrop.map((star) => <circle cx={n(star.x)} cy={n(star.y)} r={star.r.toFixed(2)} />)}
+    </g>
+    {lines.map((d) => <path class="link" d={d} />)}
+    {newest && <circle class="link" cx={n(newest.x)} cy={n(newest.y)} r="12" />}
+    {
+      stars.map((star) => (
+        <a href={star.href} aria-label={star.title}>
+          <title>{star.title}</title>
+          <circle class="hit" cx={n(star.x)} cy={n(star.y)} r="12" />
+          <circle class="post" cx={n(star.x)} cy={n(star.y)} r={star === newest ? 5.2 : 4} />
+        </a>
+      ))
+    }
+  </svg>
+</figure>
+
+<style>
+  .chart {
+    margin: 0;
+  }
+
+  svg {
+    display: block;
+    width: 100%;
+    max-width: 21rem;
+    height: auto;
+    margin-inline: auto;
+    overflow: visible;
+  }
+
+  .rule {
+    fill: none;
+    stroke: var(--line);
+    vector-effect: non-scaling-stroke;
+  }
+
+  .dashed {
+    stroke-dasharray: 2 5;
+  }
+
+  .tick {
+    fill: none;
+    stroke: var(--line);
+    stroke-width: 10;
+  }
+
+  /* 装饰用的小星要退到后面，亮的只有文章。 */
+  .backdrop {
+    fill: var(--ink);
+    fill-opacity: 0.45;
+  }
+
+  .link {
+    fill: none;
+    stroke: var(--acc);
+    stroke-opacity: 0.75;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .hit {
+    fill: transparent;
+  }
+
+  .post {
+    fill: var(--acc);
+    stroke: var(--acc);
+    stroke-width: 0;
+    stroke-opacity: 0.3;
+  }
+
+  a:hover .post,
+  a:focus-visible .post {
+    stroke-width: 9;
+  }
+
+  a:focus-visible {
+    outline: none;
+  }
+</style>

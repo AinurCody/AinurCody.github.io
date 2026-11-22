@@ -1,0 +1,61 @@
+---
+// 文章标题前面的如尼文：取文件名里第一个英文字母，换成对应的盎格鲁-撒克逊如尼文。
+// 文件名开头相同的文章（比如同一个系列）会得到同一个字母。
+import { hash32 } from '../lib/seed';
+
+interface Props {
+  /** 文章的 id，也就是文件名去掉 .md */
+  id: string;
+}
+
+const { id } = Astro.props;
+
+const RUNES: Record<string, string> = {
+  a: 'ᚪ',
+  b: 'ᛒ',
+  c: 'ᚳ',
+  d: 'ᛞ',
+  e: 'ᛖ',
+  f: 'ᚠ',
+  g: 'ᚷ',
+  h: 'ᚻ',
+  i: 'ᛁ',
+  j: 'ᛄ',
+  k: 'ᛣ',
+  l: 'ᛚ',
+  m: 'ᛗ',
+  n: 'ᚾ',
+  o: 'ᚩ',
+  p: 'ᛈ',
+  q: 'ᛢ',
+  r: 'ᚱ',
+  s: 'ᛋ',
+  t: 'ᛏ',
+  u: 'ᚢ',
+  w: 'ᚹ',
+  x: 'ᛉ',
+  y: 'ᚣ',
+  // 如尼文里没有 v 和 z：v 和页眉一样写成 u，z 写成 s。
+  v: 'ᚢ',
+  z: 'ᛋ',
+};
+
+const letter = id.toLowerCase().match(/[a-z]/)?.[0];
+// 文件名里没有英文字母时（比如全是中文或数字），按文件名固定挑一个。
+const all = Object.values(RUNES);
+const rune = letter ? RUNES[letter] : all[hash32(id) % all.length];
+---
+
+<span class="mark" aria-hidden="true">{rune}</span>
+
+<style>
+  .mark {
+    flex: none;
+    width: 1.25rem;
+    font-family: var(--rune);
+    font-size: 1.2rem;
+    line-height: 1;
+    text-align: center;
+    color: var(--acc);
+  }
+</style>

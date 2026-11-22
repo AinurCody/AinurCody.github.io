@@ -1,0 +1,113 @@
+---
+import { NAV, SITE } from '../consts';
+
+const path = Astro.url.pathname;
+const isCurrent = (href: string) => path === href || path.startsWith(href);
+---
+
+<header class="site-header wrap">
+  <div class="bar">
+    <a class="wordmark" href="/" aria-label={`${SITE.title}，回到首页`}>{SITE.wordmark}</a>
+    <nav class="site-nav" aria-label="主导航">
+      {
+        NAV.map((item) => (
+          <a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>
+            {item.label}
+          </a>
+        ))
+      }
+      <button class="theme-toggle" type="button" aria-label="切换浅色和深色" title="切换浅色和深色">
+        <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
+          <circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor"></circle>
+          <path d="M8 1.5a6.5 6.5 0 0 1 0 13z" fill="currentColor"></path>
+        </svg>
+      </button>
+    </nav>
+  </div>
+  <div class="runes" aria-hidden="true" title={`如尼文，拼的是 ${SITE.domain}`}>{SITE.runes}</div>
+</header>
+
+<script is:inline>
+  (function () {
+    var button = document.querySelector('.theme-toggle');
+    if (!button) return;
+    button.addEventListener('click', function () {
+      var root = document.documentElement;
+      var next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+      root.dataset.theme = next;
+      try {
+        localStorage.setItem('theme', next);
+      } catch (e) {}
+    });
+  })();
+</script>
+
+<style>
+  .site-header {
+    padding-top: 1.5rem;
+  }
+
+  .bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+  }
+
+  .wordmark {
+    font-family: var(--latin);
+    font-style: italic;
+    font-size: 1.6rem;
+    line-height: 1.2;
+    text-decoration: none;
+  }
+
+  .site-nav {
+    display: flex;
+    align-items: center;
+    gap: 1.4rem;
+    font-family: var(--serif);
+    font-size: 0.9rem;
+    letter-spacing: 0.1em;
+    color: var(--mut);
+  }
+
+  .site-nav a {
+    text-decoration: none;
+  }
+
+  .site-nav a[aria-current='page'] {
+    color: var(--ink);
+  }
+
+  .theme-toggle {
+    display: inline-flex;
+    padding: 0.25rem;
+    margin: 0 -0.25rem 0 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    cursor: pointer;
+  }
+
+  .theme-toggle:hover {
+    color: var(--acc);
+  }
+
+  .runes {
+    padding: 0.2rem 0 0.8rem;
+    border-bottom: 1px solid var(--line);
+    font-family: var(--rune);
+    font-size: 0.8rem;
+    letter-spacing: 0.35em;
+    color: var(--mut);
+    user-select: none;
+  }
+
+  @media (max-width: 26rem) {
+    .site-nav {
+      gap: 1rem;
+      letter-spacing: 0.04em;
+    }
+  }
+</style>

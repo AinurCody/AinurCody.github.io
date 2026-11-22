@@ -1,0 +1,27 @@
+---
+import { isoDate, shortDate } from '../lib/format';
+import { postUrl, type Post } from '../lib/posts';
+import PostMark from './PostMark.astro';
+
+interface Props {
+  posts: Post[];
+}
+
+const { posts } = Astro.props;
+---
+
+<ul class="post-list">
+  {
+    posts.map((post) => (
+      <li>
+        <a href={postUrl(post)}>
+          <PostMark id={post.id} />
+          <span>{post.data.title}</span>
+        </a>
+        {post.data.draft && <span class="tag draft">草稿</span>}
+        {post.data.tags[0] && <span class="tag">{post.data.tags[0]}</span>}
+        <time datetime={isoDate(post.data.date)}>{shortDate(post.data.date)}</time>
+      </li>
+    ))
+  }
+</ul>

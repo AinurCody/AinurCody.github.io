@@ -1,0 +1,366 @@
+/* 配色和字体。浅色是纸，深色是夜空；整站只有一个强调色。 */
+:root {
+  --bg: #faf6ec;
+  --ink: #1f1c17;
+  --mut: #736c5e;
+  --line: #ddd5c2;
+  --acc: #2b3f9e;
+  --code: #f1ebdc;
+  /* 代码里的几种颜色 */
+  --c-str: #8a4b17;
+  --c-fn: #1f6f6a;
+  --c-const: #7a3e86;
+  --c-com: #6b6456;
+
+  --serif: 'Noto Serif SC', 'Songti SC', 'Source Han Serif SC', 'Noto Serif CJK SC', serif;
+  --latin: 'Newsreader Variable', Georgia, 'Times New Roman', serif;
+  --sans: system-ui, -apple-system, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans CJK SC', sans-serif;
+  --mono: 'JetBrains Mono Variable', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  --rune: 'Noto Sans Runic', 'Segoe UI Historic', 'Apple Symbols', sans-serif;
+
+  --w-text: 44rem; /* 正文栏 */
+  --w-page: 60rem; /* 页面最宽处；正文右边留给旁注 */
+
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  --bg: #0e1124;
+  --ink: #ece6d6;
+  --mut: #9895a6;
+  --line: #2b3050;
+  --acc: #e3b94f;
+  --code: #161b36;
+  --c-str: #a8c7a0;
+  --c-fn: #7fc8c0;
+  --c-const: #c7a6e6;
+  --c-com: #9895a6;
+  color-scheme: dark;
+}
+
+/* 浏览器关掉脚本时，跟随系统的深色设置。 */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --bg: #0e1124;
+    --ink: #ece6d6;
+    --mut: #9895a6;
+    --line: #2b3050;
+    --acc: #e3b94f;
+    --code: #161b36;
+    --c-str: #a8c7a0;
+    --c-fn: #7fc8c0;
+    --c-const: #c7a6e6;
+    --c-com: #9895a6;
+    color-scheme: dark;
+  }
+}
+
+/* 代码高亮用的变量，见 astro.config.mjs 里的 css-variables。 */
+:root {
+  --astro-code-foreground: var(--ink);
+  --astro-code-background: var(--code);
+  --astro-code-token-constant: var(--c-const);
+  --astro-code-token-string: var(--c-str);
+  --astro-code-token-comment: var(--c-com);
+  --astro-code-token-keyword: var(--acc);
+  --astro-code-token-parameter: var(--ink);
+  --astro-code-token-function: var(--c-fn);
+  --astro-code-token-string-expression: var(--c-str);
+  --astro-code-token-punctuation: var(--c-com);
+  --astro-code-token-link: var(--acc);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 1rem;
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+  text-decoration-color: var(--line);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.22em;
+}
+
+a:hover {
+  color: var(--acc);
+  text-decoration-color: currentColor;
+}
+
+:focus-visible {
+  outline: 2px solid var(--acc);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--acc) 24%, transparent);
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--serif);
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.skip {
+  position: absolute;
+  left: -999px;
+  top: 0.5rem;
+  background: var(--bg);
+  padding: 0.25rem 0.75rem;
+  border: 1px solid var(--line);
+}
+
+.skip:focus {
+  left: 0.5rem;
+  z-index: 10;
+}
+
+/* 页面宽度：页眉、正文、页脚共用同一条左右边线。 */
+.wrap {
+  width: min(100% - 2.5rem, var(--w-page));
+  margin-inline: auto;
+}
+
+.empty {
+  color: var(--mut);
+}
+
+/* 文章列表：首页和文章页共用 */
+.post-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.post-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.55rem 0;
+  border-top: 1px solid var(--line);
+}
+
+.post-list li:last-child {
+  border-bottom: 1px solid var(--line);
+}
+
+.post-list a {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+  min-width: 0;
+  font-family: var(--serif);
+  font-size: 1.03rem;
+  line-height: 1.5;
+  text-decoration: none;
+}
+
+.post-list .tag {
+  font-size: 0.8rem;
+  color: var(--mut);
+  white-space: nowrap;
+}
+
+.post-list time {
+  min-width: 3.6em;
+  font-family: var(--latin);
+  font-style: italic;
+  color: var(--mut);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.draft {
+  font-family: var(--sans);
+  font-size: 0.75rem;
+  color: var(--acc);
+  border: 1px solid currentColor;
+  border-radius: 3px;
+  padding: 0 0.35em;
+  margin-right: 0.5em;
+  white-space: nowrap;
+}
+
+@media (max-width: 34rem) {
+  .post-list .tag:not(.draft) {
+    display: none;
+  }
+}
+
+/* 单页的标题区：文章、关于、友链共用 */
+.page {
+  padding-top: 2.5rem;
+}
+
+.page-head {
+  max-width: var(--w-text);
+  margin-bottom: 1.75rem;
+}
+
+.page-head h1 {
+  margin: 0.3rem 0 0;
+  font-size: clamp(1.6rem, 4.2vw, 2rem);
+}
+
+.page-head .meta,
+.page-head .series {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--mut);
+}
+
+.page-head .series {
+  margin-top: 0.4rem;
+}
+
+/* 正文 */
+.prose {
+  max-width: var(--w-text);
+  font-size: 1.03rem;
+}
+
+.prose > * {
+  margin-block: 0;
+}
+
+.prose > * + * {
+  margin-block-start: 1.15em;
+}
+
+.prose h2 {
+  font-size: 1.4rem;
+  margin-block-start: 2.2em;
+}
+
+.prose h3 {
+  font-size: 1.15rem;
+  margin-block-start: 1.8em;
+}
+
+.prose a {
+  color: var(--acc);
+  text-decoration-color: color-mix(in srgb, var(--acc) 40%, transparent);
+}
+
+.prose ul,
+.prose ol {
+  padding-left: 1.4em;
+}
+
+.prose li + li {
+  margin-top: 0.3em;
+}
+
+.prose blockquote {
+  margin-inline: 0;
+  padding-left: 1rem;
+  border-left: 2px solid var(--line);
+  color: var(--mut);
+}
+
+.prose img {
+  max-width: 100%;
+  height: auto;
+}
+
+.prose :not(pre) > code {
+  font-family: var(--mono);
+  font-size: 0.88em;
+  background: var(--code);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 0.1em 0.35em;
+}
+
+.prose pre {
+  font-family: var(--mono);
+  font-size: 0.86rem;
+  line-height: 1.65;
+  background: var(--code);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 0.9rem 1rem;
+  overflow-x: auto;
+}
+
+.prose pre code {
+  font-family: inherit;
+}
+
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95em;
+}
+
+.prose th,
+.prose td {
+  padding: 0.45em 0.6em;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+}
+
+.prose th {
+  font-family: var(--serif);
+  font-weight: 500;
+}
+
+/* 分隔线：一行如尼文，内容来自 src/consts.ts */
+.prose hr {
+  border: 0;
+  margin-block: 2.4em;
+  text-align: center;
+}
+
+.prose hr::after {
+  content: var(--rune-mark, '·');
+  font-family: var(--rune);
+  font-size: 0.8rem;
+  letter-spacing: 0.35em;
+  color: var(--mut);
+}
+
+/* 旁注：写成 <aside>…</aside>。宽屏排到正文右边，窄屏留在正文里。 */
+.prose aside {
+  font-size: 0.85rem;
+  line-height: 1.7;
+  color: var(--mut);
+  border-left: 1px solid var(--line);
+  padding-left: 0.9rem;
+}
+
+@media (min-width: 62.5rem) {
+  .prose aside {
+    float: right;
+    clear: right;
+    width: 12.5rem;
+    margin: 0.3em -14.5rem 1em 0;
+  }
+
+  /* 旁注排到右边以后不占正文的位置，开头的旁注后面那段不用再空一行。 */
+  .prose > aside:first-child + * {
+    margin-block-start: 0;
+  }
+}

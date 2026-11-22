@@ -1,0 +1,92 @@
+---
+import PostList from '../components/PostList.astro';
+import StarChart from '../components/StarChart.astro';
+import { SITE } from '../consts';
+import Base from '../layouts/Base.astro';
+import { getPosts } from '../lib/posts';
+
+const posts = await getPosts();
+const latest = posts.slice(0, 6);
+---
+
+<Base>
+  <div class="home">
+    <div class="intro">
+      <h1>{SITE.title}</h1>
+      <p class="lede">{SITE.description}</p>
+    </div>
+    <div class="sky">
+      <StarChart posts={posts} />
+    </div>
+    <section class="latest" aria-label="最近的文章">
+      {latest.length ? <PostList posts={latest} /> : <p class="empty">还没有文章。</p>}
+      {
+        posts.length > latest.length && (
+          <p class="more">
+            <a href="/posts/">全部 {posts.length} 篇文章</a>
+          </p>
+        )
+      }
+    </section>
+  </div>
+</Base>
+
+<style>
+  .home {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(15rem, 21rem);
+    /* 第一行只占标题和简介的高度，文章列表紧跟在后面；星图比左栏高时，多出来的空在列表下方。 */
+    grid-template-rows: auto 1fr;
+    grid-template-areas:
+      'intro sky'
+      'latest sky';
+    column-gap: 3rem;
+    align-items: start;
+    padding-top: 2.5rem;
+  }
+
+  .intro {
+    grid-area: intro;
+  }
+
+  .sky {
+    grid-area: sky;
+  }
+
+  .latest {
+    grid-area: latest;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: clamp(1.8rem, 4.5vw, 2.2rem);
+  }
+
+  .lede {
+    margin: 0.5rem 0 1.5rem;
+    color: var(--mut);
+  }
+
+  .more {
+    margin: 1rem 0 0;
+    font-size: 0.9rem;
+    color: var(--mut);
+  }
+
+  @media (max-width: 46rem) {
+    .home {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: auto;
+      grid-template-areas:
+        'intro'
+        'sky'
+        'latest';
+      padding-top: 1.5rem;
+    }
+
+    .sky {
+      width: min(100%, 16rem);
+      margin: 0 auto 1.75rem;
+    }
+  }
+</style>

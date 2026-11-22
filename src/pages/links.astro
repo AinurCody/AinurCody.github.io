@@ -1,0 +1,104 @@
+---
+import { SITE } from '../consts';
+import { links } from '../data/links';
+import Base from '../layouts/Base.astro';
+---
+
+<Base title="友链" description="朋友们的站点。">
+  <article class="page">
+    <header class="page-head">
+      <h1>友链</h1>
+    </header>
+
+    {
+      links.length ? (
+        <ul class="friends">
+          {links.map((link) => (
+            <li>
+              <a href={link.url} rel="noopener">
+                {link.name}
+              </a>
+              {link.desc && <span>{link.desc}</span>}
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p class="empty">还没有友链。</p>
+      )
+    }
+
+    <section class="mine">
+      <h2>本站信息</h2>
+      <dl>
+        <dt>名称</dt>
+        <dd>{SITE.title}</dd>
+        <dt>地址</dt>
+        <dd>{SITE.url}</dd>
+        <dt>简介</dt>
+        <dd>{SITE.description}</dd>
+        <dt>订阅</dt>
+        <dd>{SITE.url}/rss.xml</dd>
+      </dl>
+    </section>
+  </article>
+</Base>
+
+<style>
+  .friends {
+    list-style: none;
+    max-width: var(--w-text);
+    margin: 0;
+    padding: 0;
+  }
+
+  .friends li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.25rem 1rem;
+    padding: 0.55rem 0;
+    border-top: 1px solid var(--line);
+  }
+
+  .friends li:last-child {
+    border-bottom: 1px solid var(--line);
+  }
+
+  .friends a {
+    font-family: var(--serif);
+    font-size: 1.03rem;
+    text-decoration: none;
+  }
+
+  .friends span {
+    font-size: 0.9rem;
+    color: var(--mut);
+  }
+
+  .mine {
+    max-width: var(--w-text);
+    margin-top: 3rem;
+  }
+
+  .mine h2 {
+    margin: 0 0 0.6rem;
+    font-size: 1.15rem;
+  }
+
+  dl {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0.3rem 1.5rem;
+    margin: 0;
+    font-size: 0.95rem;
+  }
+
+  dt {
+    color: var(--mut);
+  }
+
+  dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+</style>

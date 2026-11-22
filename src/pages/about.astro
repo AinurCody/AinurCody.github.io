@@ -1,0 +1,17 @@
+---
+import { SITE } from '../consts';
+import Base from '../layouts/Base.astro';
+---
+
+<Base title="关于" description={`关于 ${SITE.author} 和这个站。`}>
+  <article class="page">
+    <header class="page-head">
+      <h1>关于</h1>
+    </header>
+    <div class="prose">
+      <!-- 占位内容：自我介绍、联系方式想写什么写什么，直接改这里。 -->
+      <p>我是 {SITE.author}。这里记录机器学习、Agent 和折腾服务器的过程。</p>
+      <p>这一页还没写完。</p>
+    </div>
+  </article>
+</Base>

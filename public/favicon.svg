@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- 如尼文 ᚳ，对应字母 c -->
+  <style>
+    path { fill: none; stroke: #2b3f9e; stroke-width: 3; }
+    @media (prefers-color-scheme: dark) {
+      path { stroke: #e3b94f; }
+    }
+  </style>
+  <path d="M12 4 V28 M12 15 L23 26" />
+</svg>

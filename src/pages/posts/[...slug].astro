@@ -1,0 +1,105 @@
+---
+import { render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import { isoDate, readingMinutes } from '../../lib/format';
+import { getPosts, postUrl, type Post } from '../../lib/posts';
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  return posts.map((post, i) => ({
+    params: { slug: post.id },
+    // getPosts 是新的在前，所以前一个是更新的文章。
+    props: { post, newer: posts[i - 1], older: posts[i + 1] },
+  }));
+}
+
+interface Props {
+  post: Post;
+  newer?: Post;
+  older?: Post;
+}
+
+const { post, newer, older } = Astro.props;
+const { Content } = await render(post);
+const { title, description, date, updated, tags, series, draft } = post.data;
+const meta = [...tags, isoDate(date), `阅读 ${readingMinutes(post.body)} 分钟`].join(' · ');
+---
+
+<Base title={title} description={description} article>
+  <article class="page">
+    <header class="page-head">
+      <p class="meta">
+        {draft && <span class="draft">草稿</span>}
+        {meta}
+      </p>
+      <h1>{title}</h1>
+      {series && <p class="series">系列：{series}</p>}
+    </header>
+
+    <div class="prose">
+      <Content />
+    </div>
+
+    {updated && <p class="updated">最后更新于 {isoDate(updated)}</p>}
+
+    <nav class="post-nav" aria-label="上一篇和下一篇">
+      {
+        older ? (
+          <a class="older" href={postUrl(older)}>
+            <span>上一篇</span>
+            {older.data.title}
+          </a>
+        ) : (
+          <span />
+        )
+      }
+      {
+        newer ? (
+          <a class="newer" href={postUrl(newer)}>
+            <span>下一篇</span>
+            {newer.data.title}
+          </a>
+        ) : (
+          <span />
+        )
+      }
+    </nav>
+  </article>
+</Base>
+
+<style>
+  .updated {
+    max-width: var(--w-text);
+    margin: 2rem 0 0;
+    font-size: 0.85rem;
+    color: var(--mut);
+  }
+
+  .post-nav {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    max-width: var(--w-text);
+    margin-top: 3rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--line);
+    clear: both;
+  }
+
+  .post-nav a {
+    font-family: var(--serif);
+    line-height: 1.5;
+    text-decoration: none;
+  }
+
+  .post-nav a span {
+    display: block;
+    font-family: var(--sans);
+    font-size: 0.8rem;
+    color: var(--mut);
+  }
+
+  .newer {
+    text-align: right;
+  }
+</style>
