@@ -20,3 +20,10 @@ import Base from '../layouts/Base.astro';
     </div>
   </article>
 </Base>
+
+<style>
+  /* 这一页是几行短句，不是长文章：放开正文的宽度限制，让每一条尽量排在一行里。 */
+  .prose {
+    max-width: none;
+  }
+</style>
