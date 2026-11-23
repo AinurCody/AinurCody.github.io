@@ -40,7 +40,7 @@ draft: true               # 可选，草稿只在本地可见
 
 | 想改的东西 | 文件 |
 | --- | --- |
-| 站名、简介、如尼文 | `src/consts.ts` |
+| 站名、简介、导航、如尼文 | `src/consts.ts` |
 | 配色和字体 | `src/styles/global.css` |
 | 关于页 | `src/pages/about.astro` |
 | 友链 | `src/data/links.ts` |

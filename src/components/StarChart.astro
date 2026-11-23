@@ -57,7 +57,7 @@ const lines = [...bySeries.values()]
   .map((group) => group.map((s, i) => `${i ? 'L' : 'M'}${s.x.toFixed(1)} ${s.y.toFixed(1)}`).join(''));
 
 // 背景里的小星只是装饰，位置由站名决定，每次构建都一样。
-const random = mulberry32(hash32(SITE.wordmark));
+const random = mulberry32(hash32(SITE.chartSeed));
 const backdrop = Array.from({ length: 26 }, () => {
   const r = Math.sqrt(random()) * (R_RIM - 16);
   const angle = random() * Math.PI * 2;

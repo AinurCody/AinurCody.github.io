@@ -7,7 +7,7 @@ const isCurrent = (href: string) => path === href || path.startsWith(href);
 
 <header class="site-header wrap">
   <div class="bar">
-    <a class="wordmark" href="/" aria-label={`${SITE.title}，回到首页`}>{SITE.wordmark}</a>
+    <a class="wordmark" href="/" aria-label={`${SITE.title}，回到首页`}>{SITE.title}</a>
     <nav class="site-nav" aria-label="主导航">
       {
         NAV.map((item) => (
@@ -59,16 +59,19 @@ const isCurrent = (href: string) => path === href || path.startsWith(href);
     font-style: italic;
     font-size: 1.6rem;
     line-height: 1.2;
+    white-space: nowrap;
     text-decoration: none;
   }
 
+  /* 导航和左上角的站名用同一种斜体英文。 */
   .site-nav {
     display: flex;
     align-items: center;
     gap: 1.4rem;
-    font-family: var(--serif);
-    font-size: 0.9rem;
-    letter-spacing: 0.1em;
+    font-family: var(--latin);
+    font-style: italic;
+    font-size: 1.05rem;
+    letter-spacing: 0.02em;
     color: var(--mut);
   }
 
@@ -104,10 +107,16 @@ const isCurrent = (href: string) => path === href || path.startsWith(href);
     user-select: none;
   }
 
+  /* 手机上站名和导航挤在同一行，各自收小一点。 */
   @media (max-width: 26rem) {
+    .wordmark {
+      font-size: 1.35rem;
+    }
+
     .site-nav {
-      gap: 1rem;
-      letter-spacing: 0.04em;
+      gap: 0.85rem;
+      font-size: 1rem;
+      letter-spacing: 0;
     }
   }
 </style>

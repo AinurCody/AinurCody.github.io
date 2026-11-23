@@ -3,16 +3,19 @@ import { SITE } from '../consts';
 import Base from '../layouts/Base.astro';
 ---
 
-<Base title="关于" description={`关于 ${SITE.author} 和这个站。`}>
+<Base title="About" description={`关于 ${SITE.author} 和这个站。`}>
   <article class="page">
     <header class="page-head">
-      <h1>关于</h1>
+      <h1>About</h1>
     </header>
     <div class="prose">
-      <p>我是 {SITE.author}，在新加坡国立大学读硕士，方向是 AI for Science。</p>
-      <p>课余喜欢跑团（D&amp;D），爱读托尔金，也看别的西幻小说和影视。页眉上那行如尼文就是这么来的，拼的是这个站的域名。</p>
-      <p>另外还打架子鼓（基本功苦手）和乒乓球（交大阳光队队员），也玩电子游戏。</p>
-      <p>这个博客用来记录学习和做东西的过程，写给以后的自己，也希望对路过的人有用。</p>
+      <p>我是 {SITE.author}，新加坡国立大学硕士在读，方向是 AI for Science，本科毕业于上海交通大学。</p>
+      <p>兴趣爱好：D&amp;D 跑团、西幻（托尔金、魔兽）、架子鼓（基本功苦手）、乒乓球（交大阳光队垫底成员）。</p>
+      <p>
+        游戏：联机游戏有 RimWorld、怪物猎人世界、博德之门、帝国时代 4、Minecraft、守望先锋等。<br />
+        单机包括巫师 3、杀手、天国拯救 2、以撒的结合等。
+      </p>
+      <p>这个博客用来记一些学习笔记和日常。</p>
       <p>可以在 GitHub 上找到我：<a href="https://github.com/AinurCody" rel="noopener">AinurCody</a>。</p>
     </div>
   </article>
