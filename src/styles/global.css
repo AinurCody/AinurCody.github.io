@@ -327,6 +327,19 @@ h4 {
   font-weight: 500;
 }
 
+/* 公式（KaTeX）：字号比 KaTeX 默认的 1.21em 小一点，和无衬线正文更搭。
+   单独成行的公式太长时在公式里横向滚动，不把整页撑宽。 */
+.prose .katex {
+  font-size: 1.1em;
+}
+
+.prose .katex-display {
+  margin-block: 1.15em 0;
+  padding-block: 0.2em;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
 /* 分隔线：一行如尼文，内容来自 src/consts.ts */
 .prose hr {
   border: 0;

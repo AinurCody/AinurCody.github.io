@@ -1,6 +1,6 @@
 ---
 title: 示例：排版测试
-description: 用来检查标题、代码、旁注和分隔线的样式，不会出现在正式站点上。
+description: 用来检查标题、代码、公式、旁注和分隔线的样式，不会出现在正式站点上。
 date: 2026-11-22
 tags: [示例]
 draft: true
@@ -35,6 +35,27 @@ def flow_step(x: torch.Tensor, v: torch.Tensor, dt: float = 0.01) -> torch.Tenso
 ```bash
 qsub -l select=1:ngpus=1 -l walltime=02:00:00 run.pbs
 ```
+
+## 公式
+
+行内公式用一对 `$` 包起来，比如 $E = mc^2$，或者扩散模型的加噪一步：$q(x_t \mid x_{t-1}) = \mathcal{N}\big(x_t;\ \sqrt{1-\beta_t}\,x_{t-1},\ \beta_t \mathbf{I}\big)$。
+
+单独成行的公式前后各写一行 `$$`：
+
+$$
+\mathcal{L}(\theta) = \mathbb{E}_{t,\,x_0,\,\epsilon}\Big[\big\lVert \epsilon - \epsilon_\theta\big(\sqrt{\bar\alpha_t}\,x_0 + \sqrt{1-\bar\alpha_t}\,\epsilon,\ t\big) \big\rVert^2\Big]
+$$
+
+多行对齐用 `aligned`：
+
+$$
+\begin{aligned}
+\nabla \cdot \mathbf{u} &= 0 \\
+\partial_t \mathbf{u} + (\mathbf{u} \cdot \nabla)\,\mathbf{u} &= -\nabla p + \nu \Delta \mathbf{u}
+\end{aligned}
+$$
+
+正文里要写美元符号时，在前面加反斜杠：\$20。
 
 ---
 

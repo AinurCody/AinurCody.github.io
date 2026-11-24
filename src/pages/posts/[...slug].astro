@@ -3,6 +3,8 @@ import { render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import { isoDate, readingMinutes } from '../../lib/format';
 import { getPosts, postUrl, type Post } from '../../lib/posts';
+// 公式（KaTeX）的样式和字体，只在文章页加载。字体文件会打包进站内，不请求外部服务。
+import 'katex/dist/katex.min.css';
 
 export async function getStaticPaths() {
   const posts = await getPosts();
