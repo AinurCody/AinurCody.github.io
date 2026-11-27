@@ -1,6 +1,6 @@
 ---
 title: 示例：排版测试
-description: 用来检查标题、代码、公式、旁注和分隔线的样式，不会出现在正式站点上。
+description: 用来检查标题、目录、代码、公式、旁注和分隔线的样式，不会出现在正式站点上。
 date: 2026-11-22
 tags: [示例]
 draft: true
@@ -54,6 +54,10 @@ $$
 \partial_t \mathbf{u} + (\mathbf{u} \cdot \nabla)\,\mathbf{u} &= -\nabla p + \nu \Delta \mathbf{u}
 \end{aligned}
 $$
+
+### 标题里的公式：$\nabla \cdot \mathbf{u} = 0$
+
+标题里也可以写公式，文章开头的目录里会照样显示出来。
 
 正文里要写美元符号时，在前面加反斜杠：\$20。
 

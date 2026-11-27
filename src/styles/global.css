@@ -259,6 +259,11 @@ h4 {
   margin-block-start: 1.8em;
 }
 
+/* 从目录跳到标题时，标题上方留一点空，不贴着窗口顶边。 */
+.prose :is(h2, h3) {
+  scroll-margin-top: 1rem;
+}
+
 .prose a {
   color: var(--acc);
   text-decoration-color: color-mix(in srgb, var(--acc) 40%, transparent);

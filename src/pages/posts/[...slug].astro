@@ -2,7 +2,8 @@
 import { render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import { isoDate, readingMinutes } from '../../lib/format';
-import { getPosts, postUrl, type Post } from '../../lib/posts';
+import { getPosts, postUrl, seriesOf, type Post } from '../../lib/posts';
+import { buildToc, tocSize } from '../../lib/toc';
 // 公式（KaTeX）的样式和字体，只在文章页加载。字体文件会打包进站内，不请求外部服务。
 import 'katex/dist/katex.min.css';
 
@@ -10,8 +11,13 @@ export async function getStaticPaths() {
   const posts = await getPosts();
   return posts.map((post, i) => ({
     params: { slug: post.id },
-    // getPosts 是新的在前，所以前一个是更新的文章。
-    props: { post, newer: posts[i - 1], older: posts[i + 1] },
+    props: {
+      post,
+      // getPosts 是新的在前，所以前一个是更新的文章。
+      newer: posts[i - 1],
+      older: posts[i + 1],
+      seriesPosts: post.data.series ? seriesOf(posts, post.data.series) : [],
+    },
   }));
 }
 
@@ -19,12 +25,24 @@ interface Props {
   post: Post;
   newer?: Post;
   older?: Post;
+  /** 同一个系列的全部文章，从早到晚；不在系列里时是空的。 */
+  seriesPosts: Post[];
 }
 
-const { post, newer, older } = Astro.props;
-const { Content } = await render(post);
+const { post, newer, older, seriesPosts } = Astro.props;
+const { Content, headings } = await render(post);
 const { title, description, date, updated, tags, series, draft } = post.data;
 const meta = [...tags, isoDate(date), `阅读 ${readingMinutes(post.body)} 分钟`].join(' · ');
+
+// 系列里有两篇以上时：标题下面出现系列目录，文末的上一篇/下一篇换成系列内的。
+const inSeries = seriesPosts.length > 1;
+const seriesIndex = seriesPosts.findIndex((p) => p.id === post.id);
+const prev = inSeries ? seriesPosts[seriesIndex - 1] : older;
+const next = inSeries ? seriesPosts[seriesIndex + 1] : newer;
+
+// 二级、三级标题加起来至少三个才显示目录，短文不需要。
+const toc = buildToc(headings, post.rendered?.html);
+const showToc = tocSize(toc) >= 3;
 ---
 
 <Base title={title} description={description} article>
@@ -35,7 +53,54 @@ const meta = [...tags, isoDate(date), `阅读 ${readingMinutes(post.body)} 分�
         {meta}
       </p>
       <h1>{title}</h1>
-      {series && <p class="series">系列：{series}</p>}
+      {series && !inSeries && <p class="series">系列：{series}</p>}
+      {
+        inSeries && (
+          <nav class="guide" aria-label="本系列的文章">
+            <details>
+              <summary>
+                系列：{series} · 第 {seriesIndex + 1} / {seriesPosts.length} 篇
+              </summary>
+              <ol class="numbered">
+                {seriesPosts.map((p) => (
+                  <li>
+                    {p.id === post.id ? (
+                      <span aria-current="page">{p.data.title}</span>
+                    ) : (
+                      <a href={postUrl(p)}>{p.data.title}</a>
+                    )}
+                  </li>
+                ))}
+              </ol>
+            </details>
+          </nav>
+        )
+      }
+      {
+        showToc && (
+          <nav class="guide" aria-label="文章目录">
+            <details>
+              <summary>目录</summary>
+              <ol>
+                {toc.map((item) => (
+                  <li>
+                    <a href={`#${item.slug}`} set:html={item.html} />
+                    {item.children.length > 0 && (
+                      <ol>
+                        {item.children.map((child) => (
+                          <li>
+                            <a href={`#${child.slug}`} set:html={child.html} />
+                          </li>
+                        ))}
+                      </ol>
+                    )}
+                  </li>
+                ))}
+              </ol>
+            </details>
+          </nav>
+        )
+      }
     </header>
 
     <div class="prose">
@@ -44,22 +109,22 @@ const meta = [...tags, isoDate(date), `阅读 ${readingMinutes(post.body)} 分�
 
     {updated && <p class="updated">最后更新于 {isoDate(updated)}</p>}
 
-    <nav class="post-nav" aria-label="上一篇和下一篇">
+    <nav class="post-nav" aria-label={inSeries ? '本系列的上一篇和下一篇' : '上一篇和下一篇'}>
       {
-        older ? (
-          <a class="older" href={postUrl(older)}>
-            <span>上一篇</span>
-            {older.data.title}
+        prev ? (
+          <a class="older" href={postUrl(prev)}>
+            <span>{inSeries ? '本系列上一篇' : '上一篇'}</span>
+            {prev.data.title}
           </a>
         ) : (
           <span />
         )
       }
       {
-        newer ? (
-          <a class="newer" href={postUrl(newer)}>
-            <span>下一篇</span>
-            {newer.data.title}
+        next ? (
+          <a class="newer" href={postUrl(next)}>
+            <span>{inSeries ? '本系列下一篇' : '下一篇'}</span>
+            {next.data.title}
           </a>
         ) : (
           <span />
@@ -70,6 +135,84 @@ const meta = [...tags, isoDate(date), `阅读 ${readingMinutes(post.body)} 分�
 </Base>
 
 <style>
+  /* 系列目录和文章目录：平时收成一行小字，点开是一列左边带细线的列表。 */
+  .guide {
+    margin-top: 0.4rem;
+    font-size: 0.85rem;
+    color: var(--mut);
+  }
+
+  .guide + .guide {
+    margin-top: 0.2rem;
+  }
+
+  .guide summary {
+    display: inline-block;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .guide summary::-webkit-details-marker {
+    display: none;
+  }
+
+  /* 折角用两条细线画：收起时朝右，展开时朝下。 */
+  .guide summary::before {
+    content: '';
+    display: inline-block;
+    width: 0.36em;
+    height: 0.36em;
+    margin: 0 0.65em 0.12em 0.1em;
+    border-right: 1px solid currentColor;
+    border-bottom: 1px solid currentColor;
+    transform: rotate(-45deg);
+    vertical-align: middle;
+  }
+
+  .guide details[open] > summary::before {
+    margin-bottom: 0.3em;
+    transform: rotate(45deg);
+  }
+
+  .guide summary:hover {
+    color: var(--ink);
+  }
+
+  .guide ol {
+    margin: 0.4rem 0 0.3rem 0.3em;
+    padding-left: 1.1rem;
+    border-left: 1px solid var(--line);
+    list-style: none;
+    line-height: 1.75;
+  }
+
+  .guide ol ol {
+    margin: 0;
+    border-left: 0;
+  }
+
+  .guide ol.numbered {
+    padding-left: 2rem;
+    list-style: decimal;
+  }
+
+  .guide a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .guide a:hover {
+    color: var(--acc);
+  }
+
+  .guide [aria-current] {
+    color: var(--ink);
+  }
+
+  .guide :global(.katex) {
+    font-size: 1.05em;
+  }
+
   .updated {
     max-width: var(--w-text);
     margin: 2rem 0 0;

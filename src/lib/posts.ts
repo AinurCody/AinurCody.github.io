@@ -9,3 +9,13 @@ export async function getPosts(): Promise<Post[]> {
 }
 
 export const postUrl = (post: Post) => `/posts/${post.id}/`;
+
+/** 同一个系列的文章，从早到晚。同一天发的按文件名的自然顺序排（note-2 排在 note-10 前面）。 */
+export function seriesOf(posts: Post[], name: string): Post[] {
+  return posts
+    .filter((post) => post.data.series === name)
+    .sort(
+      (a, b) =>
+        a.data.date.valueOf() - b.data.date.valueOf() || a.id.localeCompare(b.id, undefined, { numeric: true }),
+    );
+}
